@@ -1,0 +1,11 @@
+prefix=/home/kushagra/Desktop/DS/python/list/venv
+exec_prefix=/home/kushagra/Desktop/DS/python/list/venv
+libdir=/home/kushagra/Desktop/DS/python/list/venv/lib
+includedir=/home/kushagra/Desktop/DS/python/list/venv/include
+
+Name: uuid
+Description: Universally unique id library
+Version: 2.32.1
+Requires:
+Cflags: -I${includedir}/uuid
+Libs: -L${libdir} -luuid
