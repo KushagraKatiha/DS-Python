@@ -1,13 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index Page</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .todo-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .actions {
+      margin-top: 10px;
+    }
+    button {
+      margin-right: 5px;
+      padding: 5px 10px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button.delete {
+      background-color: #dc3545;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+  </style>
 </head>
 <body>
-    <h1>Hello There this is me !</h1>
+  <h1>Todo List</h1>
+  <div id="todo-container"></div>
 
-    <a href="http://127.0.0.1:5000/index1">click me</a>
+  <h2>Add New Item</h2>
+  <form id="add-item-form">
+    <input type="text" id="name" placeholder="Name" required>
+    <input type="text" id="description" placeholder="Description">
+    <button type="submit">Add Item</button>
+  </form>
+
+  <script>
+    const apiBase = '/items';
+
+    // Fetch and display all items
+    async function fetchItems() {
+      const response = await fetch(apiBase);
+      const items = await response.json();
+      const container = document.getElementById('todo-container');
+      container.innerHTML = '';
+
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'todo-item';
+        div.innerHTML = `
+          <strong>${item.name}</strong>: ${item.description}
+          <div class="actions">
+            <button onclick="deleteItem(${item.id})" class="delete">Delete</button>
+            <button onclick="updateItem(${item.id})">Update</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Add a new item
+    document.getElementById('add-item-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const description = document.getElementById('description').value;
+
+      await fetch(apiBase, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description })
+      });
+
+      document.getElementById('add-item-form').reset();
+      fetchItems();
+    });
+
+    // Delete an item
+    async function deleteItem(id) {
+      await fetch(`${apiBase}/${id}`, { method: 'DELETE' });
+      fetchItems();
+    }
+
+    // Update an item (simple prompt for demo purposes)
+    async function updateItem(id) {
+      const newName = prompt('Enter new name:');
+      const newDescription = prompt('Enter new description:');
+      if (newName) {
+        await fetch(`${apiBase}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newName, description: newDescription })
+        });
+        fetchItems();
+      }
+    }
+
+    // Initial fetch
+    fetchItems();
+  </script>
 </body>
 </html>
